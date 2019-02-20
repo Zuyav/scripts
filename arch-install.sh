@@ -66,3 +66,4 @@ pacstrap /mnt base
 echo "----------------------------------------Begin to configure system----------------------------------------"
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
+
