@@ -37,9 +37,6 @@ lvcreate -l +100%FREE vg1 -n lv1
 mkfs.fat -F32 /dev/sda1
 mkfs.ext4 /dev/vg1/lv1
 mkdir -p /mnt/boot/efi
-echo "3 day zhi nei sha le you"
-ls /mnt
-read
 mount /dev/vg1/lv1 /mnt
 mount /dev/sda1 /mnt/boot/efi
 
