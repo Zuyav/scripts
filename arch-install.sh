@@ -1,10 +1,13 @@
 #!/bin/sh
 
+# https://dwz.cn/GmNKmjlP
+
 # 磁盘分区
 # ----------------------------------------
 # sda - sda1 - 256MiB - EFI
 #     - sda2 - 剩下的 - LVM
 # ----------------------------------------
+echo "----------------------------------------Begin to partition----------------------------------------"
 echo "o
 Y
 n
@@ -19,7 +22,7 @@ n
 8e00
 w
 Y
-" | gdisk /dev/sda
+" | gdisk /dev/sda >> /dev/null
 
 # 配置分区
 # ----------------------------------------
@@ -28,6 +31,7 @@ Y
 # 建立文件系统
 # 挂载分区
 # ----------------------------------------
+echo "----------------------------------------Begin to configure partition----------------------------------------"
 vgcreate vg1 /dev/sda2
 lvcreate -l +100%FREE vg1 -n lv1
 mkfs.fat -F32 /dev/sda1
@@ -45,14 +49,17 @@ mount /dev/sda1 /mnt/boot/efi
 # 用来对镜像源排序，被排序的镜像源列表
 # 来自官方的Pacman镜像列表生成器
 # ----------------------------------------
-pacman -Syu pacman-contrib
+echo "----------------------------------------Begin to setup mirrors----------------------------------------"
+pacman -Sy pacman-contrib
 curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
 
 # 安装基本系统
+echo "----------------------------------------Begin to install system----------------------------------------"
 pacstrap /mnt base
 
 # 配置系统
 # ----------------------------------------
 # 生成fstab文件
 # ----------------------------------------
+echo "----------------------------------------Begin to configure system----------------------------------------"
 genfstab -U /mnt >> /mnt/etc/fstab
