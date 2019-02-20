@@ -22,7 +22,7 @@ n
 8e00
 w
 Y
-" | gdisk /dev/sda >> /dev/null
+" | gdisk /dev/sda 2>>/dev/null
 
 # 配置分区
 # ----------------------------------------
@@ -50,7 +50,7 @@ mount /dev/sda1 /mnt/boot/efi
 # 来自官方的Pacman镜像列表生成器
 # ----------------------------------------
 echo "----------------------------------------Begin to setup mirrors----------------------------------------"
-pacman -Sy pacman-contrib
+pacman -Sy pacman-contrib --noconfirm
 curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
 
 # 安装基本系统
