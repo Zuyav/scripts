@@ -47,11 +47,13 @@ mount /dev/sda1 /mnt/boot/efi
 # 来自官方的Pacman镜像列表生成器
 # ----------------------------------------
 echo "----------------------------------------Begin to setup mirrors----------------------------------------"
-pacman -Sy pacman-contrib --noconfirm
+echo "
+" | pacman -Sy pacman-contrib
 cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
 curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
 cat /etc/pacman.d/mirrorlist.back | sed -e '/^#/d' >> /etc/pacman.d/mirrorlist
 
+```
 # 安装基本系统
 echo "----------------------------------------Begin to install system----------------------------------------"
 pacstrap /mnt base
@@ -62,3 +64,4 @@ pacstrap /mnt base
 # ----------------------------------------
 echo "----------------------------------------Begin to configure system----------------------------------------"
 genfstab -U /mnt >> /mnt/etc/fstab
+```
