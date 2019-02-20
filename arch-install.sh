@@ -51,7 +51,9 @@ mount /dev/sda1 /mnt/boot/efi
 # ----------------------------------------
 echo "----------------------------------------Begin to setup mirrors----------------------------------------"
 pacman -Sy pacman-contrib --noconfirm
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
 curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
+cat /etc/pacman.d/mirrorlist.back | sed -e '/^#/d' >> /etc/pacman.d/mirrorlist
 
 # 安装基本系统
 echo "----------------------------------------Begin to install system----------------------------------------"
