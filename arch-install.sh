@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# https://dwz.cn/GmNKmjlP
-
 # 磁盘分区
 # ----------------------------------------
 # sda - sda1 - 256MiB - EFI
@@ -36,11 +34,11 @@ vgcreate vg1 /dev/sda2
 lvcreate -l +100%FREE vg1 -n lv1
 mkfs.fat -F32 /dev/sda1
 mkfs.ext4 /dev/vg1/lv1
+mount /dev/vg1/lv1 /mnt
 while test ! -e /mnt/boot/efi; do
 	echo "making dir..."
 	mkdir -p /mnt/boot/efi
 done
-mount /dev/vg1/lv1 /mnt
 mount /dev/sda1 /mnt/boot/efi
 
 # 配置镜像源
