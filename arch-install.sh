@@ -7,6 +7,9 @@ if [ -z "$usrpswd" ]; then usrpswd=admin; fi
 if [ -z "$hstname" ]; then hstname=pc-arch; fi
 if [ -z "$rtpswd" ]; then rtpswd=root; fi
 
+read "hstname?Set hostname:"
+read "rtpswd?Set password for root:"
+
 # Disk Partitioning
 # --------------------------------------------
 # sda - sda1 - 256MiB - EFI
