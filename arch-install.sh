@@ -2,28 +2,10 @@
 
 host()
 {
-read -rp "Set user name:" usrname
-flag=0
-while [ $flag -eq 0 ]; do
-	read -rsp "Set password for $usrname:" usrpswd
-	read -rsp "Confirm:" usrpswd2
-	if [ "$usrpswd"x = "usrpswd2"x ]; then
-		flag=1
-	else
-		echo "Passwords don't match! Enter again."
-	fi
-done
-read -rp "Set hostname:" hstname
-flag=0
-while [ $flag -eq 0 ]; do
-	read -rsp "Set password for $usrname:" rtpswd
-	read -rsp "Confirm:" rtpswd2
-	if [ "$rtpswd"x = "rtpswd2"x ]; then
-		flag=1
-	else
-		echo "Passwords don't match! Enter again."
-	fi
-done
+if [ -z "$usrname" ]; then usrname=admin; fi
+if [ -z "$usrpswd" ]; then usrpswd=admin; fi
+if [ -z "$hstname" ]; then hstname=pc-arch; fi
+if [ -z "$rtpswd" ]; then rtpswd=root; fi
 
 # Disk Partitioning
 # --------------------------------------------
