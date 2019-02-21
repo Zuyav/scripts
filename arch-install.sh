@@ -100,12 +100,12 @@ sed -i -e '/^HOOKS/s/block\ filesystems/block\ lvm2\ filesystems/' /etc/mkinitcp
 mkinitcpio -p linux >> /dev/null 2>&1
 
 echo "  - Setting root password..."
-echo -e "$pswd\n$pswd\n" | passwd
+echo -e "$pswd\n$pswd\n" | passwd >> /dev/null 2>&1
 
 echo "  - Installing grub..."
-pacman -S efibootmgr grub --noconfirm
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch
-grub-mkconfig -o /boot/grub/grub.cfg
+pacman -S efibootmgr grub --noconfirm >> /dev/null 2>&1
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch >> /dev/null 2>&1
+grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null 2>&1
 
 echo "  - Exiting chroot environment..."
 exit
