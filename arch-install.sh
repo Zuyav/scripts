@@ -1,65 +1,137 @@
 #!/bin/sh
 
-# 磁盘分区
-# ----------------------------------------
+hname=VM-Arch
+pswd=loveyounmsl
+
+host()
+{
+# Disk Partitioning
+# --------------------------------------------
 # sda - sda1 - 256MiB - EFI
-#     - sda2 - 剩下的 - LVM
-# ----------------------------------------
-echo "----------------------------------------Begin to partition----------------------------------------"
-echo "o
-Y
-n
+#     - sda2 - free space - LVM
+# --------------------------------------------
+echo "Partitioning disk..."
+echo -e "o\nY\nn\n\n\n+256M\nef00\nn\n\n\n\n8e00\nw\nY\n" | gdisk /dev/sda # >> /dev/null 2>&1
+#Y
+#n
+#
+#
+#+256M
+#ef00
+#n
+#
+#
+#
+#8e00
+#w
+#Y
+#" | gdisk /dev/sda # >> /dev/null 2>&1
 
-
-+256M
-ef00
-n
-
-
-
-8e00
-w
-Y
-" | gdisk /dev/sda 2>>/dev/null
-
-# 配置分区
-# ----------------------------------------
-# 用sda2构成一个卷组vg1
-# 并建立在卷组上创建一个逻辑卷lv1
-# 建立文件系统
-# 挂载分区
-# ----------------------------------------
-echo "----------------------------------------Begin to configure partition----------------------------------------"
-vgcreate vg1 /dev/sda2
-lvcreate -l +100%FREE vg1 -n lv1
-mkfs.fat -F32 /dev/sda1
-mkfs.ext4 /dev/vg1/lv1
+# Configure Partition
+# --------------------------------------------
+# Create a volume group "vg1" using sda2
+# Create a logical volume "lv1" on "vg1"
+# Setup file system
+# mount partitions
+# --------------------------------------------
+echo "Configuring partitions..."
+vgcreate vg1 /dev/sda2 # >> /dev/null 2>&1
+lvcreate -l +100%FREE vg1 -n lv1 # >> /dev/null 2>&1
+mkfs.fat -F32 /dev/sda1 # >> /dev/null 2>&1
+mkfs.ext4 /dev/vg1/lv1 # >> /dev/null 2>&1
 mount /dev/vg1/lv1 /mnt
 mkdir -p /mnt/boot/efi
 mount /dev/sda1 /mnt/boot/efi
 
-# 配置镜像源
-# ----------------------------------------
-# pacman-contrib包提供了rankmirrors脚本
-# 用来对镜像源排序，被排序的镜像源列表
-# 来自官方的Pacman镜像列表生成器
-# ----------------------------------------
-echo "----------------------------------------Begin to setup mirrors----------------------------------------"
-echo "
-" | pacman -Sy pacman-contrib
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
+# Configure Pacman Mirrors
+# --------------------------------------------
+# The pacman-contrib package provides a script
+#     called rankmirrors to rank the mirrors
+# List of mirrors to be ranked is fetched from
+#     the offiial Pacman Mirrorlist Generator
+# --------------------------------------------
+echo "Configuring pacman mirrors..."
+echo "  - Installing pacman-contrib..."
+pacman -Sy # >> /dev/null 2>&1
+pacman -S pacman-contrib --noconfirm # >> /dev/null 2>&1
+echo "  - Ranking mirrors..."
 curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
-cat /etc/pacman.d/mirrorlist.back | sed -e '/^#/d' >> /etc/pacman.d/mirrorlist
 
-```
-# 安装基本系统
-echo "----------------------------------------Begin to install system----------------------------------------"
-pacstrap /mnt base
+# Install Basic System
+# --------------------------------------------
+# 
+# --------------------------------------------
+echo "Installing Basic System..."
+pacstrap /mnt base # >> /dev/null 2>&1
 
-# 配置系统
-# ----------------------------------------
-# 生成fstab文件
-# ----------------------------------------
-echo "----------------------------------------Begin to configure system----------------------------------------"
+# Configure system
+# --------------------------------------------
+# Generate fstab file
+# --------------------------------------------
+echo "Configuring system..."
+echo "  - Generate fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
-```
+
+echo "  - Changing root..."
+cp $0 /mnt
+mkdir /mnt/hostlvm
+mount --bind /run/lvm /mnt/hostlvm
+arch-chroot /mnt /bin/bash -c "./arch-install.sh toguest"
+
+echo "  - Unmounting partitions..."
+umount -R /mnt
+
+echo "Installation finished. You can reboot now."
+exit 0
+}
+
+toguest()
+{
+ln -s /hostlvm /run/lvm
+
+echo "  - Setting time zone..."
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+hwclock -w
+
+echo "  - Localizing..."
+sed -i -e 's/^#en_US.UTF-8/en_US.UTF-8/' -e 's/^#zh_CN.UTF-8/zh_CN.UTF-8/' -e 's/^#zh_TW.UTF-8/zh_TW.UTF-8/' /etc/locale.gen
+locale-gen
+touch /etc/locale.conf
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+echo "  - Setting hostname..."
+touch /etc/hostname
+echo $hname > /etc/hostname
+cat >> /etc/hosts << EOF
+127.0.0.1	localhost
+127.0.1.1	$hname
+::1	localhost
+EOF
+
+echo "  - Configuring initramfs..."
+sed -i -e '/^HOOKS/s/block\ filesystems/block\ lvm2\ filesystems/' /etc/mkinitcpio.conf
+mkinitcpio -p linux
+
+echo "  - Setting root password..."
+echo -e "$pswd\n$pswd\n" | passwd
+
+echo "  - Installing grub..."
+pacman -S efibootmgr grub --noconfirm
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "  - Exiting chroot environment..."
+exit
+}
+
+if [ "$1"x = x ]; then
+	host
+elif [ "$1"x = hostx ]; then
+	host
+elif [ "$1"x = toguestx ]; then
+	toguest
+elif [ "$1"x = tohostx ]; then
+	tohost
+else
+	echo "Invalid parameter!"
+fi
