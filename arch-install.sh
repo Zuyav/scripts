@@ -114,7 +114,7 @@ pacman -S efibootmgr grub --noconfirm >> /dev/null 2>&1
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch >> /dev/null 2>&1
 grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null 2>&1
 mkdir -p /boot/efi/EFI/BOOT
-if test ！-e /boot/efi/EFI/BOOT/BOOTX64.EFI; then
+if test ! -e /boot/efi/EFI/BOOT/BOOTX64.EFI; then
 	cp /boot/efi/EFI/Arch/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
 fi
 cat >> /etc/grub.d/40_custom << EOF
