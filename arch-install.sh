@@ -1,7 +1,7 @@
 #!/bin/sh
 
 hname=VM-Arch
-pswd=loveyounmsl
+pswd=quantenna
 
 host()
 {
@@ -11,21 +11,7 @@ host()
 #     - sda2 - free space - LVM
 # --------------------------------------------
 echo "Partitioning disk..."
-echo -e "o\nY\nn\n\n\n+256M\nef00\nn\n\n\n\n8e00\nw\nY\n" | gdisk /dev/sda # >> /dev/null 2>&1
-#Y
-#n
-#
-#
-#+256M
-#ef00
-#n
-#
-#
-#
-#8e00
-#w
-#Y
-#" | gdisk /dev/sda # >> /dev/null 2>&1
+echo -e "o\nY\nn\n\n\n+256M\nef00\nn\n\n\n\n8e00\nw\nY\n" | gdisk /dev/sda >> /dev/null 2>&1
 
 # Configure Partition
 # --------------------------------------------
@@ -35,10 +21,10 @@ echo -e "o\nY\nn\n\n\n+256M\nef00\nn\n\n\n\n8e00\nw\nY\n" | gdisk /dev/sda # >> 
 # mount partitions
 # --------------------------------------------
 echo "Configuring partitions..."
-vgcreate vg1 /dev/sda2 # >> /dev/null 2>&1
-lvcreate -l +100%FREE vg1 -n lv1 # >> /dev/null 2>&1
-mkfs.fat -F32 /dev/sda1 # >> /dev/null 2>&1
-mkfs.ext4 /dev/vg1/lv1 # >> /dev/null 2>&1
+vgcreate vg1 /dev/sda2 >> /dev/null 2>&1
+lvcreate -l +100%FREE vg1 -n lv1 >> /dev/null 2>&1
+mkfs.fat -F32 /dev/sda1 >> /dev/null 2>&1
+mkfs.ext4 /dev/vg1/lv1 >> /dev/null 2>&1
 mount /dev/vg1/lv1 /mnt
 mkdir -p /mnt/boot/efi
 mount /dev/sda1 /mnt/boot/efi
@@ -52,8 +38,8 @@ mount /dev/sda1 /mnt/boot/efi
 # --------------------------------------------
 echo "Configuring pacman mirrors..."
 echo "  - Installing pacman-contrib..."
-pacman -Sy # >> /dev/null 2>&1
-pacman -S pacman-contrib --noconfirm # >> /dev/null 2>&1
+pacman -Sy >> /dev/null 2>&1
+pacman -S pacman-contrib --noconfirm >> /dev/null 2>&1
 echo "  - Ranking mirrors..."
 curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
 
@@ -62,21 +48,21 @@ curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" 
 # 
 # --------------------------------------------
 echo "Installing Basic System..."
-pacstrap /mnt base # >> /dev/null 2>&1
+pacstrap /mnt base >> /dev/null 2>&1
 
 # Configure system
 # --------------------------------------------
 # Generate fstab file
 # --------------------------------------------
 echo "Configuring system..."
-echo "  - Generate fstab file..."
+echo "  - Generating fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "  - Changing root..."
 cp $0 /mnt
 mkdir /mnt/hostlvm
 mount --bind /run/lvm /mnt/hostlvm
-arch-chroot /mnt /bin/bash -c "./arch-install.sh toguest"
+arch-chroot /mnt /bin/bash -c "./arch-install.sh guest"
 
 echo "  - Unmounting partitions..."
 umount -R /mnt
@@ -85,7 +71,7 @@ echo "Installation finished. You can reboot now."
 exit 0
 }
 
-toguest()
+guest()
 {
 ln -s /hostlvm /run/lvm
 
@@ -95,7 +81,7 @@ hwclock -w
 
 echo "  - Localizing..."
 sed -i -e 's/^#en_US.UTF-8/en_US.UTF-8/' -e 's/^#zh_CN.UTF-8/zh_CN.UTF-8/' -e 's/^#zh_TW.UTF-8/zh_TW.UTF-8/' /etc/locale.gen
-locale-gen
+locale-gen >> /dev/null 2>&1
 touch /etc/locale.conf
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
@@ -126,12 +112,8 @@ exit
 
 if [ "$1"x = x ]; then
 	host
-elif [ "$1"x = hostx ]; then
-	host
-elif [ "$1"x = toguestx ]; then
-	toguest
-elif [ "$1"x = tohostx ]; then
-	tohost
+elif [ "$1"x = guestx ]; then
+	guest
 else
 	echo "Invalid parameter!"
 fi
