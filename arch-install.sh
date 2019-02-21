@@ -97,7 +97,7 @@ EOF
 
 echo "  - Configuring initramfs..."
 sed -i -e '/^HOOKS/s/block\ filesystems/block\ lvm2\ filesystems/' /etc/mkinitcpio.conf
-mkinitcpio -p linux
+mkinitcpio -p linux >> /dev/null 2>&1
 
 echo "  - Setting root password..."
 echo -e "$pswd\n$pswd\n" | passwd
