@@ -59,7 +59,8 @@ echo "  - Generating fstab file..."
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "  - Changing root..."
-wget -O /mnt/arch-install.sh https://raw.githubusercontent.com/Zuyav/scripts/master/arch-install.sh
+wget -O /mnt/arch-install.sh https://raw.githubusercontent.com/Zuyav/scripts/master/arch-install.sh >> /dev/null 2>&1
+chmod +x /mnt/arch-install.sh
 mkdir /mnt/hostlvm
 mount --bind /run/lvm /mnt/hostlvm
 arch-chroot /mnt /bin/bash -c "./arch-install.sh guest"
