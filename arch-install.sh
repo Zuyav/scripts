@@ -1,10 +1,30 @@
 #!/bin/sh
 
-hname=VM-Arch
-pswd=loveyounmsl
-
 host()
 {
+read -rp "Set user name:" usrname
+flag=0
+while [ $flag -eq 0 ]; do
+	read -rsp "Set password for $usrname:" usrpswd
+	read -rsp "Confirm:" usrpswd2
+	if [ "$usrpswd"x = "usrpswd2"x ]; then
+		flag=1
+	else
+		echo "Passwords don't match! Enter again."
+	fi
+done
+read -rp "Set hostname:" hstname
+flag=0
+while [ $flag -eq 0 ]; do
+	read -rsp "Set password for $usrname:" rtpswd
+	read -rsp "Confirm:" rtpswd2
+	if [ "$rtpswd"x = "rtpswd2"x ]; then
+		flag=1
+	else
+		echo "Passwords don't match! Enter again."
+	fi
+done
+
 # Disk Partitioning
 # --------------------------------------------
 # sda - sda1 - 256MiB - EFI
@@ -65,6 +85,11 @@ wget -O /mnt/arch-install.sh https://raw.githubusercontent.com/Zuyav/scripts/mas
 chmod +x /mnt/arch-install.sh
 arch-chroot /mnt /bin/bash -c "./arch-install.sh guest"
 
+echo "  - Cleaning..."
+umount -R /mnt/hostlvm
+rm -rf /mnt/hostlvm
+rm /mnt/arch-install.sh
+
 echo "  - Unmounting partitions..."
 umount -R /mnt
 
@@ -88,10 +113,10 @@ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
 echo "  - Setting hostname..."
 touch /etc/hostname
-echo $hname > /etc/hostname
+echo $hstname > /etc/hostname
 cat >> /etc/hosts << EOF
 127.0.0.1	localhost
-127.0.1.1	$hname
+127.0.1.1	$hstname
 ::1	localhost
 EOF
 
@@ -100,11 +125,27 @@ sed -i -e '/^HOOKS/s/block\ filesystems/block\ lvm2\ filesystems/' /etc/mkinitcp
 mkinitcpio -p linux >> /dev/null 2>&1
 
 echo "  - Setting root password..."
-echo -e "$pswd\n$pswd\n" | passwd >> /dev/null 2>&1
+echo -e "$rtpswd\n$rtpswd\n" | passwd >> /dev/null 2>&1
 
 echo "  - Installing grub..."
 pacman -S efibootmgr grub --noconfirm >> /dev/null 2>&1
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch >> /dev/null 2>&1
+grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null 2>&1
+mkdir -p /boot/efi/EFI/BOOT
+if test ！-e /boot/efi/EFI/BOOT/BOOTX64.EFI; then
+	cp /boot/efi/EFI/Arch/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
+fi
+cat >> /etc/grub.d/40_custom << EOF
+menuentry "Shutdown" {
+	echo "System shutting down..."
+	halt
+}
+
+menuentry "Reboot" {
+	echo "System rebooting..."
+	reboot
+}
+EOF
 grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null 2>&1
 
 echo "  - Exiting chroot environment..."
