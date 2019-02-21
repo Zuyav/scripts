@@ -117,4 +117,5 @@ elif [ "$1"x = guestx ]; then
 	guest
 else
 	echo "Invalid parameter!"
+	exit 1
 fi
