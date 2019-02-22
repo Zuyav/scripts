@@ -2,8 +2,8 @@
 
 host()
 {
-read "hstname?Set hostname:"
-read "rtpswd?Set password for root:"
+read -rp "Set hostname:" hstname
+read -rep "Set password for root:" rtpswd
 
 if [ -z "$usrname" ]; then usrname=admin; fi
 if [ -z "$usrpswd" ]; then usrpswd=admin; fi
