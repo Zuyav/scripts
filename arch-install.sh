@@ -2,13 +2,13 @@
 
 host()
 {
+read "hstname?Set hostname:"
+read "rtpswd?Set password for root:"
+
 if [ -z "$usrname" ]; then usrname=admin; fi
 if [ -z "$usrpswd" ]; then usrpswd=admin; fi
 if [ -z "$hstname" ]; then hstname=pc-arch; fi
 if [ -z "$rtpswd" ]; then rtpswd=root; fi
-
-read "hstname?Set hostname:"
-read "rtpswd?Set password for root:"
 
 # Disk Partitioning
 # --------------------------------------------
