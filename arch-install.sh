@@ -2,7 +2,7 @@
 
 check_network()
 {
-
+	echo
 }
 
 host()
@@ -48,7 +48,8 @@ mount /dev/sda1 /mnt/boot/efi
 # --------------------------------------------
 echo "Configuring pacman mirrors..."
 sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
-pacman -Sy reflector --noconfirm >> /dev/null 2>&1
+pacman -Sy >> /dev/null 2>&1
+pacman -S reflector --noconfirm >> /dev/null 2>&1
 reflector --verbose --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist
 
 # Install Basic System
