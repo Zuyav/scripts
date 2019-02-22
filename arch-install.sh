@@ -66,6 +66,13 @@ genfstab -U /mnt >> /mnt/etc/fstab
 echo "  - Changing root..."
 mkdir /mnt/hostlvm
 mount --bind /run/lvm /mnt/hostlvm
+touch /mnt/export.sh
+cat >> /mnt/export.sh << EOF
+export usrname=$usrname
+export usrpswd=$usrpswd
+export hstname=$hstname
+export rtpswd=$rtpswd
+EOF
 wget -O /mnt/arch-install.sh https://raw.githubusercontent.com/Zuyav/scripts/master/arch-install.sh >> /dev/null 2>&1
 chmod +x /mnt/arch-install.sh
 arch-chroot /mnt /bin/bash -c "./arch-install.sh guest"
@@ -85,6 +92,7 @@ exit 0
 guest()
 {
 ln -s /hostlvm /run/lvm
+source /mnt/export.sh
 
 echo "  - Setting time zone..."
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
