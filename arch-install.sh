@@ -2,7 +2,6 @@
 
 host()
 {
-
 read -rp "Set hostname:" hstname
 read -rsp "Set password for root:" rtpswd
 
@@ -43,11 +42,9 @@ mount /dev/sda1 /mnt/boot/efi
 #     the offiial Pacman Mirrorlist Generator
 # --------------------------------------------
 echo "Configuring pacman mirrors..."
-echo "  - Installing pacman-contrib..."
-pacman -Sy >> /dev/null 2>&1
-pacman -S pacman-contrib --noconfirm >> /dev/null 2>&1
-echo "  - Ranking mirrors..."
-curl -s "https://www.archlinux.org/mirrorlist/?country=CN&use_mirror_status=on" | sed -e 's/^#Server/Server/' -e '/^#/d' | rankmirrors - > /etc/pacman.d/mirrorlist
+sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
+pacman -Sy reflector --noconfirm >> /dev/null 2>&1
+reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist
 
 # Install Basic System
 # --------------------------------------------
