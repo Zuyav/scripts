@@ -92,7 +92,7 @@ exit 0
 guest()
 {
 ln -s /hostlvm /run/lvm
-source /mnt/export.sh
+source /export.sh
 
 echo "  - Setting time zone..."
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
