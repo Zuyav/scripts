@@ -50,7 +50,19 @@ echo "Configuring pacman mirrors..."
 sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
 pacman -Sy >> /dev/null 2>&1
 pacman -S reflector --noconfirm >> /dev/null 2>&1
-reflector --verbose --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist
+reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist >> /dev/null 2>&1
+sortrtn=$?
+retry=1
+while [ $sortrtn -ne 0 ]; do
+	echo "Failed to sort pacman mirrors. Retrying...[$retry/3]"
+	reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist >> /dev/null 2>&1
+	sortrtn=$?
+	let retry++
+	if [ $retry -gt 3 ]; then
+		echo "Retry failed for 3 times. Give up now."
+		break;
+	fi
+done
 
 # Install Basic System
 # --------------------------------------------
