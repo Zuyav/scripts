@@ -2,6 +2,7 @@
 
 host()
 {
+
 read -rp "Set hostname:" hstname
 read -rsp "Set password for root:" rtpswd
 
