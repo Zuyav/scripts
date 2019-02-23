@@ -2,6 +2,8 @@
 
 host()
 {
+clear
+
 # Set account
 # --------------------------------------------
 # hostname
@@ -19,7 +21,7 @@ while true; do
 		echo -e "\nPasswords not match. Try again."
 	fi
 done
-read -rp $'Set new username: ' usrname
+read -rp $'\nSet new username: ' usrname
 while true; do
 	read -rsp "Set password for $usrname: " usrpswd
 	read -rsp $'\nConfirm: ' usrpswd2
@@ -29,6 +31,7 @@ while true; do
 		echo -e "\nPasswords not match. Try again."
 	fi
 done
+echo ""
 if [ -z "$usrname" ]; then usrname=user; fi
 if [ -z "$usrpswd" ]; then usrpswd=user; fi
 if [ -z "$hstname" ]; then hstname=arch-pc; fi
@@ -60,30 +63,10 @@ mount /dev/sda1 /mnt/boot/efi
 
 # Configure Pacman Mirrors
 # --------------------------------------------
-# The pacman-contrib package provides a script
-#     called rankmirrors to rank the mirrors
-# List of mirrors to be ranked is fetched from
-#     the offiial Pacman Mirrorlist Generator
+# Use only mirrors in China
 # --------------------------------------------
 echo "Configuring pacman mirrors..."
-echo "  - Installing reflector..."
 sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
-pacman -Sy >> /dev/null 2>&1
-pacman -S reflector --noconfirm >> /dev/null 2>&1
-echo "  - Sorting pacman mirrors..."
-reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist >> /dev/null 2>&1
-sortrtn=$?
-retry=1
-while [ $sortrtn -ne 0 ]; do
-	echo "  - Failed to sort pacman mirrors. Retrying...[$retry/3]"
-	reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist >> /dev/null 2>&1
-	sortrtn=$?
-	let retry++
-	if [ $retry -gt 3 ]; then
-		echo "  - Retry failed for 3 times. Give up now."
-		break;
-	fi
-done
 
 # Install Basic System
 # --------------------------------------------
@@ -103,8 +86,8 @@ genfstab -U /mnt >> /mnt/etc/fstab
 echo "  - Changing root..."
 mkdir /mnt/hostlvm
 mount --bind /run/lvm /mnt/hostlvm
-touch /mnt/export.sh
-cat >> /mnt/export.sh << EOF
+touch /mnt/export
+cat >> /mnt/export << EOF
 export usrname=$usrname
 export usrpswd=$usrpswd
 export hstname=$hstname
@@ -115,9 +98,10 @@ chmod +x /mnt/arch-install.sh
 arch-chroot /mnt /bin/bash -c "./arch-install.sh guest"
 
 echo "  - Cleaning..."
-umount -R /mnt/hostlvm
+umount /mnt/hostlvm
 rm -rf /mnt/hostlvm
 rm /mnt/arch-install.sh
+rm /mnt/export
 
 echo "  - Unmounting partitions..."
 umount -R /mnt
@@ -129,7 +113,7 @@ exit 0
 guest()
 {
 ln -s /hostlvm /run/lvm
-source /export.sh
+source /export
 
 echo "  - Setting time zone..."
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -177,6 +161,21 @@ menuentry "Reboot" {
 }
 EOF
 grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null 2>&1
+
+echo "  - Adding new user..."
+useradd -m $usrname
+echo -e "$usrpswd\n$usrpswd\n" | passwd $usrname
+pacman -S sudo --noconfirm >> /dev/null 2>&1
+sed -i -e "/^root ALL=(ALL) ALL/a $usrname ALL=(ALL) ALL" /etc/sudoers
+
+echo "Configuring pacman mirrors for new system..."
+echo "  - Installing pacman-contrib..."
+pacman -Syyu >> /dev/null 2>&1
+pacman -S pacman-contrib --noconfirm >> /dev/null 2>&1
+echo "  - Sorting pacman mirrors..."
+curl -s "https://www.archlinux.org/mirrorlist/?country=CN" | sed -e 's/^#Server/Server/' | rankmirrors - > /etc/pacman.d/mirrorlist
+
+
 
 echo "  - Exiting chroot environment..."
 exit
