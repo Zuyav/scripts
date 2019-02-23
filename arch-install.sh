@@ -1,18 +1,37 @@
 #!/bin/sh
 
-check_network()
-{
-	echo
-}
-
 host()
 {
-read -rp "Set hostname:" hstname
-read -rsp "Set password for root:" rtpswd
-
-if [ -z "$usrname" ]; then usrname=admin; fi
-if [ -z "$usrpswd" ]; then usrpswd=admin; fi
-if [ -z "$hstname" ]; then hstname=pc-arch; fi
+# Set account
+# --------------------------------------------
+# hostname
+# root password
+# new user name
+# new user password
+# --------------------------------------------
+read -rp "Set hostname: " hstname
+while true; do
+	read -rsp "Set password for root: " rtpswd
+	read -rsp $'\nConfirm: ' rtpswd2
+	if [ "$rtpswd"x = "$rtpswd2"x ]; then
+		break
+	else
+		echo -e "\nPasswords not match. Try again."
+	fi
+done
+read -rp $'Set new username: ' usrname
+while true; do
+	read -rsp "Set password for $usrname: " usrpswd
+	read -rsp $'\nConfirm: ' usrpswd2
+	if [ "$usrpswd"x = "$usrpswd2"x ]; then
+		break
+	else
+		echo -e "\nPasswords not match. Try again."
+	fi
+done
+if [ -z "$usrname" ]; then usrname=user; fi
+if [ -z "$usrpswd" ]; then usrpswd=user; fi
+if [ -z "$hstname" ]; then hstname=arch-pc; fi
 if [ -z "$rtpswd" ]; then rtpswd=root; fi
 
 # Disk Partitioning
@@ -47,19 +66,21 @@ mount /dev/sda1 /mnt/boot/efi
 #     the offiial Pacman Mirrorlist Generator
 # --------------------------------------------
 echo "Configuring pacman mirrors..."
+echo "  - Installing reflector..."
 sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
 pacman -Sy >> /dev/null 2>&1
 pacman -S reflector --noconfirm >> /dev/null 2>&1
+echo "  - Sorting pacman mirrors..."
 reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist >> /dev/null 2>&1
 sortrtn=$?
 retry=1
 while [ $sortrtn -ne 0 ]; do
-	echo "Failed to sort pacman mirrors. Retrying...[$retry/3]"
+	echo "  - Failed to sort pacman mirrors. Retrying...[$retry/3]"
 	reflector --country China --latest 100 --sort rate --save /etc/pacman.d/mirrorlist >> /dev/null 2>&1
 	sortrtn=$?
 	let retry++
 	if [ $retry -gt 3 ]; then
-		echo "Retry failed for 3 times. Give up now."
+		echo "  - Retry failed for 3 times. Give up now."
 		break;
 	fi
 done
