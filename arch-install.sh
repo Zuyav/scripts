@@ -164,7 +164,7 @@ grub-mkconfig -o /boot/grub/grub.cfg >> /dev/null 2>&1
 
 echo "  - Adding new user..."
 useradd -m $usrname
-echo -e "$usrpswd\n$usrpswd\n" | passwd $usrname
+echo -e "$usrpswd\n$usrpswd\n" | passwd $usrname >> /dev/null 2>&1
 pacman -S sudo --noconfirm >> /dev/null 2>&1
 sed -i -e "/^root ALL=(ALL) ALL/a $usrname ALL=(ALL) ALL" /etc/sudoers
 
