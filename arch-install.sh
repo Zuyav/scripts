@@ -339,7 +339,7 @@ guest()
 #-------------------------------------------------------------------------------
 main()
 {
-	if [ "$1"x = hostx ]; then
+	if [ "$1"x = x ]; then
 		host
 	elif [ "$1"x = guestx ]; then
 		guest
@@ -349,4 +349,4 @@ main()
 	fi
 }
 
-main
+main $1
