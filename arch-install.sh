@@ -298,11 +298,15 @@ sortMirror()
 configureUserAccount()
 {
 	echo -e "$rtpswd\n$rtpswd\n" | passwd
-	useradd -m -G wheel $usrname
+	useradd -G wheel -m $usrname
 	echo -e "$usrpswd\n$usrpswd\n" | passwd
 	sed -i -e "/^root ALL=(ALL) ALL/a $usrname ALL=(ALL) ALL" /etc/sudoers
 }
 
+#-------------------------------------------------------------------------------
+# 安装grub作为bootloader
+# 添加shutdown和reboot选项
+#-------------------------------------------------------------------------------
 installGrub()
 {
 	pacman -S efibootmgr grub --noconfirm
@@ -322,6 +326,15 @@ installGrub()
 	echo '	reboot' >> /etc/grub.d/40_custom
 	echo '}' >> /etc/grub.d/40_custom
 	grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+#-------------------------------------------------------------------------------
+# 安装GNOME
+#-------------------------------------------------------------------------------
+installGnome()
+{
+	pacman -S xorg-server xorg-xinit gnome gnome-extra
+	systemctl enable gdm.service
 }
 
 #-------------------------------------------------------------------------------
