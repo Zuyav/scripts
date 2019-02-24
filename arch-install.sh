@@ -6,8 +6,9 @@
 #-------------------------------------------------------------------------------
 processBar()
 {
-	touch ./arch-install.log
-	$1 > ./arch-install.log 2>&1 &
+	#touch ./arch-install.log
+	#$1 > ./arch-install.log 2>&1 &
+	$1 &
 	local PID=$!
 	local red='\x1b[38;2;170;0;0m'
 	local green='\x1b[38;2;0;170;0m'
@@ -23,12 +24,12 @@ processBar()
 	wait $PID
 	if [ $? -eq 0 ]; then
 		echo -e "\r[${green}${bold}   OK   ${normal}\033[0m] $2"
-		rm ./arch-install.log
+		#rm ./arch-install.log
 		return 0
 	else
 		echo -e "\r[${red}${bold} FAILED ${normal}\033[0m] $2"
-		cat ./arch-install.log | tail -n 10
-		echo "Complete log could be found in ./arch-install.log"
+		#cat ./arch-install.log | tail -n 10
+		#echo "Complete log could be found in ./arch-install.log"
 		exit 1
 	fi
 }
