@@ -119,10 +119,8 @@ mountPartition()
 #-------------------------------------------------------------------------------
 selectMirror()
 {
-	sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
-	pacman -S pacman-contrib --noconfirm
-	curl -s "https://www.archlinux.org/mirrorlist/?country=CN" | sed -e 's/^#Server/Server/' | rankmirrors - > /etc/pacman.d/mirrorlist
-
+	wget -O /etc/pacman.d/mirrorlist "https://www.archlinux.org/mirrorlist/?country=CN"
+	sed -i -e 's/^#Server/Server/' /etc/pacman.d/mirrorlist
 }
 
 #-------------------------------------------------------------------------------
