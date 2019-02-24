@@ -192,6 +192,7 @@ unmountPartition()
 #-------------------------------------------------------------------------------
 host()
 {
+	clear
 	readInput
 
 	processBar 'checkNetwork' "Start to check network status."
