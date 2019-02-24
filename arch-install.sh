@@ -20,7 +20,7 @@ processBar()
 		done
 	done
 	wait $PID
-	if [ $? -eq 0]; then
+	if [ $? -eq 0 ]; then
 		echo -e "\r[${green}${bold}  O K  ${normal}\033[0m] $2"
 		rm ./arch-install.log
 		return 0
