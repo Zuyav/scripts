@@ -21,11 +21,11 @@ processBar()
 	done
 	wait $PID
 	if [ $? -eq 0 ]; then
-		echo -e "\r[${green}${bold}  O K  ${normal}\033[0m] $2"
+		echo -e "\r[${green}${bold}   OK   ${normal}\033[0m] $2"
 		rm ./arch-install.log
 		return 0
 	else
-		echo -e "\r[${red}${bold} Error ${normal}\033[0m] $2"
+		echo -e "\r[${red}${bold}  Error  ${normal}\033[0m] $2"
 		cat ./arch-install.log | tail -n 10
 		echo "Complete log could be found in ./arch-install.log"
 		exit 1
