@@ -1,5 +1,39 @@
 #!/bin/bash
 
+anpai()
+{
+	processBarTest $2 &
+	local PID=$!
+	$1 > ./arch-install.log 2>&1
+	kill -9 $PID
+	if [ $? -eq 0 ]; then
+		echo -e "\r[${green}${bold}   OK   ${normal}\033[0m] $2"
+		rm ./arch-install.log
+		return 0
+	else
+		echo -e "\r[${red}${bold} FAILED ${normal}\033[0m] $2"
+		cat ./arch-install.log | tail -n 10
+		echo "Complete log could be found in ./arch-install.log"
+		exit 1
+	fi
+	
+}
+
+processBarTest()
+{
+	local red='\x1b[38;2;170;0;0m'
+	local green='\x1b[38;2;0;170;0m'
+	local blue='\x1b[38;2;23;147;209m'
+	local bold=$(tput bold)
+	local norlmal=$(tput sgr0)
+	while true; do
+		for bar in "  ****  " "   **** " "    ****" "*    ***" "**    **" "***    *" "****    " " ****   "; do
+			echo -e "\r[${blue}${bold}$bar${normal}\033[0m] $1\c"
+			sleep .5
+		done
+	done
+}
+
 #-------------------------------------------------------------------------------
 # 进度条
 # 用法: processBar '要执行的命令' "要显示的文字"
@@ -194,22 +228,22 @@ host()
 	clear
 	readInput
 
-	processBar 'checkNetwork' "Start to check network status."
-	processBar 'partitionDisk' "Start to partition the disks."
-	processBar 'formatPartition' "Start to format the partitions."
-	processBar 'mountPartition' "Start to mount the partitions."
-	processBar 'selectMirror' "Start to select pacman mirrors."
-	processBar 'installBaseSystem' "Start to install the base packages."
-	processBar 'generateFstab' "Start to generate file system table."
-	processBar 'passParameter' "Start to pass parameter to the guest system."
-	processBar 'downloadScript' "Start to download installation script for the guest system."
+	anpai 'checkNetwork' "Start to check network status."
+	anpai 'partitionDisk' "Start to partition the disks."
+	anpai 'formatPartition' "Start to format the partitions."
+	anpai 'mountPartition' "Start to mount the partitions."
+	anpai 'selectMirror' "Start to select pacman mirrors."
+	anpai 'installBaseSystem' "Start to install the base packages."
+	anpai 'generateFstab' "Start to generate file system table."
+	anpai 'passParameter' "Start to pass parameter to the guest system."
+	anpai 'downloadScript' "Start to download installation script for the guest system."
 
 	changeRoot
 
-	processBar 'cleanTemp' "Start to remove temporary files."
-	processBar 'unmountPartition' "Start to unmount partitions."
+	anpai 'cleanTemp' "Start to remove temporary files."
+	anpai 'unmountPartition' "Start to unmount partitions."
 
-	processBar '' "System installation is completed. You could reboot now!"
+	anpai '' "System installation is completed. You could reboot now!"
 	
 	exit 0
 }
@@ -322,17 +356,17 @@ exitChroot()
 #-------------------------------------------------------------------------------
 guest()
 {
-	#processBar 'importParameter' "Start to import parameters from the host system."
+	#anpai 'importParameter' "Start to import parameters from the host system."
 	importParameter
 	
-	processBar 'setTimeZone' "Start to set time zone."
-	processBar 'localize' "Start to localize the system."
-	processBar 'configureNetwork' "Start to configure network."
-	processBar 'updateSystem' "Start to update the system."
-	processBar 'sortMirror' "Start to sort pacman mirrors."
-	processBar 'configureUserAccount' "Start to configure user accounts."
-	processBar 'installGrub' "Start to install bootloader grub."
-	#processBar 'exitChroot' "Start to exit chroot environment."
+	anpai 'setTimeZone' "Start to set time zone."
+	anpai 'localize' "Start to localize the system."
+	anpai 'configureNetwork' "Start to configure network."
+	anpai 'updateSystem' "Start to update the system."
+	anpai 'sortMirror' "Start to sort pacman mirrors."
+	anpai 'configureUserAccount' "Start to configure user accounts."
+	anpai 'installGrub' "Start to install bootloader grub."
+	#anpai 'exitChroot' "Start to exit chroot environment."
 	exitChroot
 }
 
