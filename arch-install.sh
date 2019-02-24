@@ -322,7 +322,9 @@ exitChroot()
 #-------------------------------------------------------------------------------
 guest()
 {
-	processBar 'importParameter' "Start to import parameters from the host system."
+	#processBar 'importParameter' "Start to import parameters from the host system."
+	importParameter
+	
 	processBar 'setTimeZone' "Start to set time zone."
 	processBar 'localize' "Start to localize the system."
 	processBar 'configureNetwork' "Start to configure network."
