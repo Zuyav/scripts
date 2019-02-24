@@ -1,19 +1,40 @@
 #!/bin/bash
 
-set +m
-
+#-------------------------------------------------------------------------------
+# 全局变量
+# 都是用来设置echo样式的
+#-------------------------------------------------------------------------------
 red='\x1b[38;2;170;0;0m'
 green='\x1b[38;2;0;170;0m'
 blue='\x1b[38;2;23;147;209m'
 bold=$(tput bold)
 norlmal=$(tput sgr0)
 
-anpai()
+#-------------------------------------------------------------------------------
+# 一条****从左向右循环移动
+#-------------------------------------------------------------------------------
+spinner()
 {
-	processBarTest "$2" &
+	while true; do
+		for bar in "  ****  " "   **** " "    ****" "*    ***" "**    **" "***    *" "****    " " ****   "; do
+			echo -e "\r[${blue}${bold}$bar${normal}\033[0m] $1\c"
+			sleep .5
+		done
+	done
+}
+
+#-------------------------------------------------------------------------------
+# 安排一个命令
+# 让它开始执行, 输出重定向到文件
+# 并且显示一个彩色的spinner来指示状态
+# 用法: anPai '要执行的指令' "要显示的字符串"
+#-------------------------------------------------------------------------------
+anPai()
+{
+	spinner "$2" &
 	local PID=$!
 	$1 > ./arch-install.log 2>&1
-	kill -9 $PID > /dev/null 2>&1
+	kill $PID > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo -e "\r[${green}${bold}   OK   ${normal}\033[0m] $2"
 		rm ./arch-install.log
@@ -25,49 +46,6 @@ anpai()
 		exit 1
 	fi
 	
-}
-
-processBarTest()
-{
-	while true; do
-		for bar in "  ****  " "   **** " "    ****" "*    ***" "**    **" "***    *" "****    " " ****   "; do
-			echo -e "\r[${blue}${bold}$bar${normal}\033[0m] $1\c"
-			sleep .5
-		done
-	done
-}
-
-#-------------------------------------------------------------------------------
-# 进度条
-# 用法: processBar '要执行的命令' "要显示的文字"
-#-------------------------------------------------------------------------------
-processBar()
-{
-	touch ./arch-install.log
-	$1 > ./arch-install.log 2>&1 &
-	local PID=$!
-	local red='\x1b[38;2;170;0;0m'
-	local green='\x1b[38;2;0;170;0m'
-	local blue='\x1b[38;2;23;147;209m'
-	local bold=$(tput bold)
-	local norlmal=$(tput sgr0)
-	while [ -d /proc/$PID ]; do
-		for i in "  ****  " "   **** " "    ****" "*    ***" "**    **" "***    *" "****    " " ****   "; do
-			echo -e "\r[${blue}${bold}$i${normal}\033[0m] $2\c"
-			sleep .5
-		done
-	done
-	wait $PID
-	if [ $? -eq 0 ]; then
-		echo -e "\r[${green}${bold}   OK   ${normal}\033[0m] $2"
-		rm ./arch-install.log
-		return 0
-	else
-		echo -e "\r[${red}${bold} FAILED ${normal}\033[0m] $2"
-		cat ./arch-install.log | tail -n 10
-		echo "Complete log could be found in ./arch-install.log"
-		exit 1
-	fi
 }
 
 #-------------------------------------------------------------------------------
@@ -231,22 +209,22 @@ host()
 	clear
 	readInput
 
-	anpai 'checkNetwork' "Start to check network status."
-	anpai 'partitionDisk' "Start to partition the disks."
-	anpai 'formatPartition' "Start to format the partitions."
-	anpai 'mountPartition' "Start to mount the partitions."
-	anpai 'selectMirror' "Start to select pacman mirrors."
-	anpai 'installBaseSystem' "Start to install the base packages."
-	anpai 'generateFstab' "Start to generate file system table."
-	anpai 'passParameter' "Start to pass parameter to the guest system."
-	anpai 'downloadScript' "Start to download installation script for the guest system."
+	anPai 'checkNetwork' "Start to check network status."
+	anPai 'partitionDisk' "Start to partition the disks."
+	anPai 'formatPartition' "Start to format the partitions."
+	anPai 'mountPartition' "Start to mount the partitions."
+	anPai 'selectMirror' "Start to select pacman mirrors."
+	anPai 'installBaseSystem' "Start to install the base packages."
+	anPai 'generateFstab' "Start to generate file system table."
+	anPai 'passParameter' "Start to pass parameter to the guest system."
+	anPai 'downloadScript' "Start to download installation script for the guest system."
 
 	changeRoot
 
-	anpai 'cleanTemp' "Start to remove temporary files."
-	anpai 'unmountPartition' "Start to unmount partitions."
+	anPai 'cleanTemp' "Start to remove temporary files."
+	anPai 'unmountPartition' "Start to unmount partitions."
 
-	anpai '' "System installation is completed. You could reboot now!"
+	anPai '' "System installation is completed. You could reboot now!"
 	
 	exit 0
 }
@@ -359,17 +337,17 @@ exitChroot()
 #-------------------------------------------------------------------------------
 guest()
 {
-	#anpai 'importParameter' "Start to import parameters from the host system."
+	#anPai 'importParameter' "Start to import parameters from the host system."
 	importParameter
 	
-	anpai 'setTimeZone' "Start to set time zone."
-	anpai 'localize' "Start to localize the system."
-	anpai 'configureNetwork' "Start to configure network."
-	anpai 'updateSystem' "Start to update the system."
-	anpai 'sortMirror' "Start to sort pacman mirrors."
-	anpai 'configureUserAccount' "Start to configure user accounts."
-	anpai 'installGrub' "Start to install bootloader grub."
-	#anpai 'exitChroot' "Start to exit chroot environment."
+	anPai 'setTimeZone' "Start to set time zone."
+	anPai 'localize' "Start to localize the system."
+	anPai 'configureNetwork' "Start to configure network."
+	anPai 'updateSystem' "Start to update the system."
+	anPai 'sortMirror' "Start to sort pacman mirrors."
+	anPai 'configureUserAccount' "Start to configure user accounts."
+	anPai 'installGrub' "Start to install bootloader grub."
+	#anPai 'exitChroot' "Start to exit chroot environment."
 	exitChroot
 }
 
