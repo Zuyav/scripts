@@ -1,11 +1,19 @@
 #!/bin/bash
 
+set +m
+
+red='\x1b[38;2;170;0;0m'
+green='\x1b[38;2;0;170;0m'
+blue='\x1b[38;2;23;147;209m'
+bold=$(tput bold)
+norlmal=$(tput sgr0)
+
 anpai()
 {
-	processBarTest $2 &
+	processBarTest "$2" &
 	local PID=$!
 	$1 > ./arch-install.log 2>&1
-	kill -9 $PID
+	kill -9 $PID > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo -e "\r[${green}${bold}   OK   ${normal}\033[0m] $2"
 		rm ./arch-install.log
@@ -21,11 +29,6 @@ anpai()
 
 processBarTest()
 {
-	local red='\x1b[38;2;170;0;0m'
-	local green='\x1b[38;2;0;170;0m'
-	local blue='\x1b[38;2;23;147;209m'
-	local bold=$(tput bold)
-	local norlmal=$(tput sgr0)
 	while true; do
 		for bar in "  ****  " "   **** " "    ****" "*    ***" "**    **" "***    *" "****    " " ****   "; do
 			echo -e "\r[${blue}${bold}$bar${normal}\033[0m] $1\c"
