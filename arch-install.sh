@@ -221,7 +221,7 @@ importParameter()
 #-------------------------------------------------------------------------------
 # 设置时区
 #-------------------------------------------------------------------------------
-setTimeZone
+setTimeZone()
 {
 	ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	hwclock -w
