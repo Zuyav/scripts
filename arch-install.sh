@@ -108,7 +108,7 @@ formatPartition()
 #-------------------------------------------------------------------------------
 mountPartition()
 {
-	mount /dev/vg1/lv1 /mnt
+	mount /dev/sda2 /mnt
 	mkdir -p /mnt/boot/efi
 	mount /dev/sda1 /mnt/boot/efi
 }
@@ -202,7 +202,8 @@ host()
 	processBar 'generateFstab' "Start to generate file system table."
 	processBar 'passParameter' "Start to pass parameter to the guest system."
 	processBar 'downloadScript' "Start to download installation script for the guest system."
-	processBar 'changeRoot' "Start to change root to the guest system."
+
+	changeRoot
 	
 	processBar 'cleanTemp' "Start to remove temporary files."
 	processBar 'unmountPartition' "Start to unmount partitions."
