@@ -337,9 +337,7 @@ exitChroot()
 #-------------------------------------------------------------------------------
 guest()
 {
-	#anPai 'importParameter' "Start to import parameters from the host system."
-	importParameter
-	
+	anPai 'importParameter' "Start to import parameters from the host system."
 	anPai 'setTimeZone' "Start to set time zone."
 	anPai 'localize' "Start to localize the system."
 	anPai 'configureNetwork' "Start to configure network."
@@ -347,8 +345,7 @@ guest()
 	anPai 'sortMirror' "Start to sort pacman mirrors."
 	anPai 'configureUserAccount' "Start to configure user accounts."
 	anPai 'installGrub' "Start to install bootloader grub."
-	#anPai 'exitChroot' "Start to exit chroot environment."
-	exitChroot
+	anPai 'exitChroot' "Start to exit chroot environment."
 }
 
 #-------------------------------------------------------------------------------
