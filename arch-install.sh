@@ -6,6 +6,7 @@
 #-------------------------------------------------------------------------------
 processBar()
 {
+	touch ./arch-install.log
 	$1 > ./arch-install.log 2>&1 &
 	local PID=$!
 	local red='\x1b[38;2;170;0;0m'
@@ -204,7 +205,7 @@ host()
 	processBar 'downloadScript' "Start to download installation script for the guest system."
 
 	changeRoot
-	
+
 	processBar 'cleanTemp' "Start to remove temporary files."
 	processBar 'unmountPartition' "Start to unmount partitions."
 
@@ -329,7 +330,8 @@ guest()
 	processBar 'sortMirror' "Start to sort pacman mirrors."
 	processBar 'configureUserAccount' "Start to configure user accounts."
 	processBar 'installGrub' "Start to install bootloader grub."
-	processBar 'exitChroot' "Start to exit chroot environment."
+	#processBar 'exitChroot' "Start to exit chroot environment."
+	exitChroot
 }
 
 #-------------------------------------------------------------------------------
