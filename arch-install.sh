@@ -25,7 +25,7 @@ processBar()
 		rm ./arch-install.log
 		return 0
 	else
-		echo -e "\r[${red}${bold}  Error  ${normal}\033[0m] $2"
+		echo -e "\r[${red}${bold} FAILED ${normal}\033[0m] $2"
 		cat ./arch-install.log | tail -n 10
 		echo "Complete log could be found in ./arch-install.log"
 		exit 1
@@ -120,6 +120,9 @@ mountPartition()
 selectMirror()
 {
 	sed -i -ne '/China/{n;p}' /etc/pacman.d/mirrorlist
+	pacman -S pacman-contrib --noconfirm
+	curl -s "https://www.archlinux.org/mirrorlist/?country=CN" | sed -e 's/^#Server/Server/' | rankmirrors - > /etc/pacman.d/mirrorlist
+
 }
 
 #-------------------------------------------------------------------------------
