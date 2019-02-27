@@ -17,7 +17,7 @@ user=%(?:%{$fg[cyan]%}:%{$fg[red]%})%B%n%b%{$reset_color%}
 host=%{$fg[magenta]%}%B%m%b%{$reset_color%}
 dir=%{$fg[blue]%}%B%c%b%{$reset_color%}
 
-PROMPT='${user} ${host}.${dir} $(git_prompt_info)%(!.#.$) '
+PROMPT='${user}:${host}.${dir} $(git_prompt_info)%(!.#.$) '
 RPROMPT='[%*]'
 
 # git theming
