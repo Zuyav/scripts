@@ -1,31 +1,34 @@
 #!/bin/bash
 
-export LC_COLLATE=C
-
 la()
 {
-	/bin/ls "$1" -l | sed -n -e '1p'
-	/bin/ls "$1" -lAhF --color=always | grep ^d --color=never
-	/bin/ls "$1" -lAhF --color=always | grep ^l --color=never
-	/bin/ls "$1" -lAhF --color=always | grep ^- --color=never
+        /bin/ls "$1" -l | sed -n -e '1p'
+        /bin/ls "$1" -lAhF --color=always 2>/dev/null | grep ^d --color=never
+        /bin/ls "$1" -lAhF --color=always 2>/dev/null | grep ^l --color=never
+        /bin/ls "$1" -lAhF --color=always 2>/dev/null | grep ^- --color=never
 }
 
+export LC_COLLATE=C
 if [ $# -eq 1 ]; then
-	la "$1"
-	exit $?
+        la "$1"
+        exit $?
 fi
 
 first=1
-for arg in "$@"; do
-	if [ ${first} -eq 1 ]; then
-		first=0
-	else
-		echo
-	fi
-	if [ `echo "${arg}" | sed -e 's/\ //'` == "${arg}" ]; then
-		echo "${arg}:"
-	else
-		echo "'${arg}':"
-	fi
-	la "${arg}"
-done
+if [ $# -eq 0 ]; then
+        la .
+else
+        for arg in "$@"; do
+                if [ ${first} -eq 1 ]; then
+                        first=0
+                else
+                        echo
+                fi
+                if [ `echo "${arg}" | sed -e 's/\ //'` == "${arg}" ]; then
+                        echo "${arg}:"
+                else
+                        echo "'${arg}':"
+                fi
+                la "${arg}"
+        done
+fi
