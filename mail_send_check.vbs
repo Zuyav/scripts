@@ -3,13 +3,16 @@ Private Sub Application_ItemSend(ByVal Item As Object, Cancel As Boolean)
     Dim objRecip As Recipient
     Dim objContact As ContactItem
     Dim strExternal As String
+    Dim endl As String
+
+    strRecipients = ""
+    strCarbonCopys = ""
+    endl = vbCr & vbLf
 
     If Item.MessageClass Like "IPM.TaskRequest*" Then
         Set Item = Item.GetAssociatedTask(False)
     End If
-    
-    strRecipients = ""
-    strCarbonCopys = ""
+
     For Each objRecipient In Item.Recipients
         Set objContact = FindContactByAddress(objRecipient.Address)
         If objRecipient.Type = olCC Then
@@ -33,14 +36,15 @@ Private Sub Application_ItemSend(ByVal Item As Object, Cancel As Boolean)
     
     If strRecipients <> "" Then
         MSGText = _
-            "确认要发送该邮件吗？" & vbCr & vbCr & _
-            "主题：" & vbCr & "    " & Item.Subject & vbCr & _
-            "收件人：" & vbCr & strRecipients
+            "主题：" & endl & _
+            "    " & Item.Subject & endl & _
+            "收件人：" & endl & _
+            strRecipients
         If strCarbonCopys <> "" Then
-            MSGText = MSGText & "抄送：" & vbCr & strCarbonCopys
+            MSGText = MSGText & "抄送：" & endl & strCarbonCopys
         End If
-            
-        If MsgBox(MSGText, vbYesNo, "发送确认") = vbNo Then
+
+        If MsgBox(MSGText, vbYesNo, "确认要发送该邮件吗？") = vbNo Then
             Cancel = True
         End If
     End If
@@ -56,3 +60,4 @@ Dim objContacts
     Set FindContactByAddress = objContact
 
 End Function
+                
