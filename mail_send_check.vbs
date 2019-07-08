@@ -1,4 +1,4 @@
-rem "From https://blog.csdn.net/duanjianmin/article/details/6616691"
+Rem From https://blog.csdn.net/duanjianmin/article/details/6616691
 Private Sub Application_ItemSend(ByVal Item As Object, Cancel As Boolean)
     Dim objRecip As Recipient
     Dim objContact As ContactItem
